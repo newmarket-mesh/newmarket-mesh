@@ -10,7 +10,7 @@ How it runs, what it stores, and who can see what: [TRANSPARENCY.md](TRANSPARENC
 - **Relays**: Tailscale's public DERP servers, used only when two devices cannot connect directly. They forward encrypted packets.
 - **Hub**: https://hub.newmarket.network on the mesh. Search across every `.nm` site, plus the directory. [Homer](https://github.com/bastienwirtz/homer) v26.08.3 behind Caddy 2.11.7.
 - **Newmarket Square**: https://square.nm-mesh.daddar.io on the mesh. The community board. [Lemmy](https://join-lemmy.org/) 0.19.21 with the [Photon](https://github.com/Xyphyn/photon) frontend.
-- **Names**: every device on the mesh is `name.nm`. On a full node's LAN, CoreDNS answers `.nm` for the sites on that node.
+- **Names**: every device on the mesh is `name.nm`. `hub.nm` is the hub machine. `square.nm` is a mesh DNS record for the same address. CoreDNS on the hub answers the rest of `.nm`.
 
 `hub.newmarket.network` and `square.nm-mesh.daddar.io` resolve publicly to the hub's mesh address, `100.64.0.1`. Anyone can look the names up. Only devices on the mesh can reach that address.
 
@@ -25,7 +25,7 @@ cp .env.example .env
 cp deploy/lab/dns/nm.zone.example deploy/lab/dns/nm.zone
 ```
 
-Set `LAB_BIND` in `.env` to this host's LAN address, and put the same address in `nm.zone`. Then:
+Set `LAB_BIND` in `.env` to this host's own address. On the mesh VM that is `10.11.66.10`. The names in `nm.zone` stay `100.64.0.1`. Then:
 
 ```bash
 scripts/lab.sh up -d
@@ -61,11 +61,36 @@ Lemmy's hostname is fixed at the first start. Changing it later breaks every lin
 
 ## Put the hub on the mesh
 
-`deploy/tailscale/` runs a second Tailscale daemon in its own network namespace, so a desktop can carry the hub onto the mesh without joining its own tailnet to it. The namespace can reach the hub's ports 80, 443, and 53 and the public internet. It cannot reach anything else on the LAN.
+The hub runs in a VM on the Proxmox host `void`. Tailscale runs in the VM, as `hub`, at `100.64.0.1`. Caddy listens on that address and on `LAB_BIND`. `deploy/tailscale/` is the desktop rollback. Leave it until the VM is confirmed.
 
-1. Install `nm-netns.default` as `/etc/default/nm-netns` with `HUB_IP` set to the hub's LAN address.
-2. Install `nm-netns.sh` as `/usr/local/sbin/nm-netns.sh`, and the two `.service` files under `/etc/systemd/system/`. Enable both.
-3. Log the namespace daemon in with a key from the login server, as `hub`, and forward its ports 80 and 443 to the hub with `tailscale serve --tcp`.
+The VM is Debian 13: 2 vCPU, 6 GB RAM, 40 GB disk. Its NIC is `vmbr0`, VLAN tag 66. Address `10.11.66.10/24`, gateway `10.11.66.1`, DNS `9.9.9.9` and `1.1.1.1`. `void` has no address on VLAN 66.
+
+On the switch, tag VLAN 66 on the trunks that already carry 11, 22, 33, 44, and 55. On `void`, add 66 to `vmbr0` `bridge-vids` and apply it.
+
+pfSense interface `igc1.66`, `10.11.66.1/24`. No DHCP. No port forward. Outbound NAT includes `10.11.66.0/24`.
+
+MESH rules, top to bottom:
+
+1. Pass ICMP from MESH to `10.11.66.1`.
+2. Block MESH to this firewall on TCP 22, 80, 443, 2222, and 10443.
+3. Pass MESH to `9.9.9.9` and `1.1.1.1`, TCP and UDP 53.
+4. Block MESH to `10.0.0.0/8`, `172.16.0.0/12`, and `192.168.0.0/16`.
+5. Pass MESH to any, TCP 80 and 443.
+6. Pass MESH to any, UDP.
+7. Pass MESH to any, ICMP.
+
+HOME rules, above the allow-any:
+
+1. Pass HOME to `10.11.66.10` TCP 22.
+2. Block HOME to `10.11.66.0/24`.
+
+Install Tailscale 1.102.3 or newer in the VM. Copy `/var/lib/tailscale-nm/tailscaled.state` from the desktop into the VM state directory. Do not log in as a new node, and do not log the old one out. Start Tailscale, confirm the address is `100.64.0.1`, then run `tailscale serve reset`.
+
+Set `LAB_BIND=10.11.66.10`. Copy Postgres, the pict-rs data, `deploy/lab/acme/`, and `.env` from container 106. `.env` stays out of git. Start with `scripts/mesh-up.sh`.
+
+The public A records stay `100.64.0.1`. Set their TTL to 300 before the cutover.
+
+Rollback: stop Tailscale on the VM, start the stack on container 106, and start `tailscaled-nm` on the desktop.
 
 ## Run the login server
 
@@ -74,7 +99,7 @@ Lemmy's hostname is fixed at the first start. Changing it later breaks every lin
 ## Layout
 
 - `deploy/headscale/`: the login server and the access policy
-- `deploy/tailscale/`: the namespace that carries the hub onto the mesh
+- `deploy/tailscale/`: desktop rollback, until the VM is confirmed
 - `deploy/lab/compose.yml`: Caddy for the portal
 - `deploy/lab/hub.yml`: the hub
 - `deploy/lab/names.yml`: the name gate (Caddy on 80 and 443), the `.nm` DNS server, and the crawler
@@ -83,6 +108,7 @@ Lemmy's hostname is fixed at the first start. Changing it later breaks every lin
 - `hub/`: the hub and its search page
 - `scripts/crawl.py`: walks every HTTPS name in the `.nm` zone every minute and rewrites the search index when a page changes. A page joins a directory category with `<meta name="mesh-category" content="Name">`.
 - `scripts/square-seed.py`: site settings and starter communities for the Square
+- `scripts/mesh-up.sh`: starts the stack after `100.64.0.1` is up
 
 ## Stop
 

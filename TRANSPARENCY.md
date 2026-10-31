@@ -32,9 +32,13 @@ Nobody's home internet is carried for someone else. The access policy never appr
 
 ## The hub and Newmarket Square
 
-The hub (https://hub.newmarket.network) and the Square (https://square.nm-mesh.daddar.io) run in a container on a home server in Newmarket. The operator's desktop carries them onto the mesh. That desktop's mesh connection can reach only the hub's web and DNS ports and the public internet. It cannot reach anything else on that home network. See [deploy/tailscale/](deploy/tailscale/).
+The hub (https://hub.newmarket.network) and the Square (https://square.nm-mesh.daddar.io) run in a virtual machine on a home server in Newmarket. Tailscale runs in that machine. Its mesh address is 100.64.0.1.
 
-When that home server or that desktop is off, the hub and the Square are offline.
+That machine can reach the public internet, including the login server and Tailscale's relays. It cannot reach anything else on the home network. The operator opens its console on the Proxmox host, and SSH from the home LAN.
+
+When that machine is off, the hub and the Square are offline.
+
+The desktop still carries that address until the VM is confirmed. While it does, the hub and the Square are also offline when the desktop is off.
 
 The hub's page server logs each request with the time, the page, and the browser's name. It never sees who asked: every request reaches it from the hub's own gate, so that is the only address in the log. The gates in front of the hub and the Square keep no access logs. All container logs rotate at 30 MB.
 
@@ -46,7 +50,7 @@ On the Square, the operator can read everything posted, the same as any forum ad
 
 ## Names and certificates
 
-`hub.newmarket.network` and `square.nm-mesh.daddar.io` are public DNS records that point at the hub's mesh address. Anyone can look them up. Only devices on the mesh can open them. The old hub name, `hub.nm-mesh.daddar.io`, redirects to the new one.
+`hub.newmarket.network` and `square.nm-mesh.daddar.io` are public DNS records that point at the hub's mesh address. Anyone can look them up. Only devices on the mesh can open them. The old hub name, `hub.nm-mesh.daddar.io`, redirects to the new one. On the mesh, `hub.nm` is the hub machine and `square.nm` is a DNS record for the same address.
 
 Their certificates come from Let's Encrypt. Let's Encrypt cannot reach a mesh address, so ownership is proven with a temporary TXT record in the name's zone. That proof is public, as all certificates are, through Certificate Transparency logs.
 

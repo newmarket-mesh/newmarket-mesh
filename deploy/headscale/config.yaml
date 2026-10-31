@@ -57,7 +57,11 @@ dns:
     global: []
     split: {}
   search_domains: []
-  extra_records: []
+  # square.nm is the board. hub.nm is the node's own name, so it is not listed here.
+  extra_records:
+    - name: "square.nm"
+      type: "A"
+      value: "100.64.0.1"
 
 unix_socket: /var/run/headscale/headscale.sock
 unix_socket_permission: "0770"

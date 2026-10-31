@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="mesh-category" content="Network">
+  <meta name="mesh-summary" content="Which machines that run this network are answering.">
+  <title>Status · Newmarket Community Mesh</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/custom.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --blue: #024685;
+      --green: #c1cf18;
+      --ink: #16304a;
+      --muted: #3d5166;
+      --paper: #ffffff;
+      --line: #e4eaf0;
+      --up: #0b7a3b;
+      --issues: #6b4500;
+      --down: #9d1c34;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .band { height: 8px; background: var(--blue); }
+    .band + .band { height: 4px; background: var(--green); }
+    .frame { width: min(52rem, 100%); margin: 0 auto; }
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 1.25rem 0;
+    }
+    .place {
+      color: var(--blue);
+      font-size: 1.45rem;
+      font-weight: 720;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-decoration: none;
+    }
+    .place:hover { color: #01366a; }
+    main { padding: 1.35rem 1.25rem 3rem; }
+    h1 {
+      margin: 0 0 0.45rem;
+      color: var(--blue);
+      font-size: 2.4rem;
+      font-weight: 720;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+    .lede { margin: 0; color: var(--ink); font-size: 1.12rem; }
+    .quiet { margin: 0.7rem 0 0; color: var(--muted); }
+    .banner {
+      margin: 1.15rem 0 0;
+      font-size: 1.25rem;
+      font-weight: 720;
+      letter-spacing: -0.02em;
+    }
+    .banner.up { color: var(--up); }
+    .banner.issues, .stale, .problem { color: var(--issues); }
+    .banner.down { color: var(--down); }
+    .banner.unchecked { color: var(--ink); }
+    .stale, .problem { margin: 0.45rem 0 0; font-weight: 650; }
+    .when { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.85rem; }
+    .map-wrap {
+      position: relative;
+      margin-top: 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #f3f6f4;
+      overflow: hidden;
+    }
+    .map-wrap svg { display: block; width: 100%; height: auto; }
+    .markers { position: absolute; inset: 0; }
+    .marker {
+      position: absolute;
+      width: 2.75rem;
+      height: 2.75rem;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+    }
+    .marker:focus-visible {
+      outline: 3px solid var(--green);
+      outline-offset: 3px;
+    }
+    .marker[aria-current="true"] { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .dot {
+      display: block;
+      width: 1.15rem;
+      height: 1.15rem;
+      margin: 0.8rem auto 0;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #fff;
+    }
+    .dot.up, .swatch.up { background: var(--up); }
+    .dot.issues, .swatch.issues { background: #a15c00; }
+    .dot.down, .swatch.down { background: var(--down); }
+    .dot.unchecked, .swatch.unchecked {
+      background: #fff;
+      box-shadow: 0 0 0 3px #fff, inset 0 0 0 3px var(--muted);
+    }
+    .swatch.unchecked { box-shadow: inset 0 0 0 2px var(--muted); }
+    .marker-state {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% - 0.45rem);
+      transform: translateX(-50%);
+      padding: 0.05rem 0.45rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 0 0 1px var(--line);
+      font-size: 0.75rem;
+      font-weight: 720;
+      white-space: nowrap;
+    }
+    .marker-state.up { color: var(--up); }
+    .marker-state.issues { color: var(--issues); }
+    .marker-state.down { color: var(--down); }
+    .marker-state.unchecked { color: var(--muted); }
+    .marker-place {
+      position: absolute;
+      left: 50%;
+      top: calc(100% - 0.2rem);
+      transform: translateX(-50%);
+      color: var(--ink);
+      font-size: 0.85rem;
+      font-weight: 720;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .caption { margin: 0.45rem 0 0; color: var(--muted); font-size: 0.85rem; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      margin: 0.7rem 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.85rem;
+      font-weight: 650;
+    }
+    .legend li { display: flex; align-items: center; gap: 0.4rem; }
+    .swatch { width: 0.75rem; height: 0.75rem; border-radius: 50%; }
+    .node {
+      margin-top: 0.75rem;
+      padding: 0.95rem 1rem 0.35rem;
+      border: 1px solid var(--line);
+      border-left-width: 4px;
+      border-radius: 10px;
+      scroll-margin: 1rem;
+    }
+    .node:focus { outline: 3px solid var(--green); outline-offset: 3px; }
+    .node[data-state="up"] { border-left-color: var(--up); }
+    .node[data-state="issues"] { border-left-color: #a15c00; }
+    .node[data-state="down"] { border-left-color: var(--down); }
+    .node[data-state="unchecked"] { border-left-color: var(--muted); }
+    .node.is-current { box-shadow: 0 0 0 2px rgba(2, 70, 133, 0.35); }
+    .node-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+    }
+    .node h2 {
+      margin: 0;
+      color: var(--blue);
+      font-size: 1.35rem;
+      font-weight: 720;
+      letter-spacing: -0.02em;
+    }
+    .role { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.85rem; }
+    .blurb { margin: 0.55rem 0 0; }
+    .state { font-weight: 720; white-space: nowrap; }
+    .state.up { color: var(--up); }
+    .state.issues { color: var(--issues); }
+    .state.down { color: var(--down); }
+    .state.unchecked { color: var(--muted); }
+    .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+    .check {
+      display: grid;
+      grid-template-columns: minmax(6.5rem, 9rem) 6.5rem 1fr;
+      gap: 0.35rem 0.75rem;
+      align-items: baseline;
+      padding: 0.55rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .check .detail { color: var(--muted); }
+    .note { margin: 0.85rem 0 0; color: var(--muted); }
+    .notes { margin-top: 1.35rem; }
+    footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    a:focus-visible, .place:focus-visible, .apps-button:focus-visible {
+      outline: 3px solid var(--green);
+      outline-offset: 3px;
+    }
+    @media (max-width: 560px) {
+      h1 { font-size: 2rem; }
+      .check { grid-template-columns: 1fr auto; }
+      .check .detail { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="band"></div>
+  <div class="band"></div>
+  <div class="frame">
+    <header class="bar">
+      <a class="place" href="/">Newmarket, Ontario</a>
+      <div class="tools">
+        <button id="apps-button" class="apps-button" type="button" aria-label="Apps" aria-expanded="false" aria-controls="apps-menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <circle cx="3.5" cy="3.5" r="1.6" fill="currentColor"/>
+            <circle cx="10" cy="3.5" r="1.6" fill="currentColor"/>
+            <circle cx="16.5" cy="3.5" r="1.6" fill="currentColor"/>
+            <circle cx="3.5" cy="10" r="1.6" fill="currentColor"/>
+            <circle cx="10" cy="10" r="1.6" fill="currentColor"/>
+            <circle cx="16.5" cy="10" r="1.6" fill="currentColor"/>
+            <circle cx="3.5" cy="16.5" r="1.6" fill="currentColor"/>
+            <circle cx="10" cy="16.5" r="1.6" fill="currentColor"/>
+            <circle cx="16.5" cy="16.5" r="1.6" fill="currentColor"/>
+          </svg>
+        </button>
+        <div id="apps-menu" class="apps-menu" hidden>
+          <a class="app" id="app-search" href="/">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/></svg>
+            Search
+          </a>
+          <a class="app" id="mesh-directory" href="http://127.0.0.1:8090/directory/">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+            Directory
+          </a>
+          <a class="app" id="app-square" href="http://127.0.0.1:8094/">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
+            Square
+          </a>
+          <a class="app" id="app-status" href="/status/">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6.5l6-2 6 2 4-1.5v13l-4 1.5-6-2-6 2-4-1.5z"/><path d="M10 4.5v13M16 6.5v13"/></svg>
+            Status
+          </a>
+        </div>
+      </div>
+    </header>
+    <main>
+      <h1>Status</h1>
+      <p class="lede">Which machines that run this network are answering.</p>
+      <p class="quiet">The map shows the city each machine is in. It is not a street map. Members, homes, and sensors are not on it.</p>
+      <div id="live" aria-live="polite">
+        <p id="problem" class="problem" hidden></p>
+        <p id="summary" class="banner"></p>
+        <p id="stale" class="stale" hidden></p>
+      </div>
+      <p id="when" class="when"></p>
+      <div class="map-wrap">
+        <svg viewBox="0 0 640 560" role="img" aria-labelledby="map-title map-desc">
+          <title id="map-title">Map of Newmarket and Toronto</title>
+          <desc id="map-desc">A schematic, not to scale. Newmarket is in the north. Toronto is south of it. Lake Ontario runs along the bottom. Members, homes, and sensors are not shown.</desc>
+          <rect width="640" height="560" fill="#f3f6f4"/>
+          <path fill="#d4e4f2" d="M0 492 C150 458 230 520 340 486 C470 448 540 520 640 478 L640 560 L0 560 Z"/>
+          <ellipse cx="246" cy="128" rx="92" ry="50" fill="#ffffff" stroke="#d5dee6"/>
+          <ellipse cx="368" cy="330" rx="120" ry="64" fill="#ffffff" stroke="#d5dee6"/>
+          <text x="320" y="532" text-anchor="middle" fill="#3d5166" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif">Lake Ontario</text>
+          <g fill="none" stroke="#16304a" stroke-width="1.6" stroke-linecap="round">
+            <path d="M588 36 V68"/>
+            <path d="M588 36 l-5.5 9"/>
+            <path d="M588 36 l5.5 9"/>
+          </g>
+          <text x="588" y="86" text-anchor="middle" fill="#16304a" font-size="12" font-weight="700" font-family="ui-sans-serif, system-ui, sans-serif">N</text>
+        </svg>
+        <div class="markers" id="markers"></div>
+      </div>
+      <p class="caption">Not to scale.</p>
+      <ul class="legend">
+        <li><span class="swatch up" aria-hidden="true"></span> Up</li>
+        <li><span class="swatch issues" aria-hidden="true"></span> Issues</li>
+        <li><span class="swatch down" aria-hidden="true"></span> Down</li>
+      </ul>
+      <p id="undrawn" class="note" hidden></p>
+      <div id="nodes"></div>
+      <div class="notes">
+        <p class="note">Relays are Tailscale's public relays. This page does not check them. They forward encrypted packets only when two devices cannot connect directly.</p>
+        <p class="note">This page is served by the Newmarket node. If that node is down, this page is down with it.</p>
+      </div>
+      <noscript><p class="lede">This page needs its script to show which nodes are up.</p></noscript>
+      <footer>Lab copy. Nothing here is on the public internet. No analytics.</footer>
+    </main>
+  </div>
+  <script>
+    (function () {
+      var PLACES = {
+        Newmarket: { x: 38.4375, y: 22.8571 },
+        Toronto: { x: 57.5, y: 58.9286 }
+      };
+      var LABEL = { up: "Up", issues: "Issues", down: "Down", unchecked: "Not checked" };
+      var STALE_MS = 5 * 60 * 1000;
+      var problem = document.getElementById("problem");
+      var summary = document.getElementById("summary");
+      var stale = document.getElementById("stale");
+      var when = document.getElementById("when");
+      var markers = document.getElementById("markers");
+      var undrawn = document.getElementById("undrawn");
+      var nodesEl = document.getElementById("nodes");
+      var legend = document.querySelector(".legend");
+      var current = -1;
+      var ticket = 0;
+      var timer = 0;
+      var lastNodes = null;
+      var lastGood = null;
+
+      function setText(el, text) {
+        if (el.textContent !== text) el.textContent = text;
+      }
+
+      function showProblem(text) {
+        problem.hidden = false;
+        setText(problem, text);
+      }
+
+      function clearProblem() {
+        problem.hidden = true;
+        setText(problem, "");
+      }
+
+      function normalize(state) {
+        return LABEL[state] ? state : "issues";
+      }
+
+      function rollup(states) {
+        if (!states.length || states.every(function (state) { return state === "unchecked"; })) {
+          return "unchecked";
+        }
+        if (states.every(function (state) { return state === "down"; })) return "down";
+        if (states.some(function (state) { return state !== "up"; })) return "issues";
+        return "up";
+      }
+
+      function sentence(rows) {
+        if (!rows.length) return "No nodes are listed.";
+        var parts = [];
+        rows.forEach(function (row) {
+          if (row.state === "down") parts.push("The " + row.name + " is down.");
+          else if (row.state === "issues") parts.push("The " + row.name + " is having issues.");
+          else if (row.state === "unchecked") parts.push("The " + row.name + " has not been checked yet.");
+        });
+        if (!parts.length) return "Everything checked is up.";
+        return parts.join(" ");
+      }
+
+      function overall(rows) {
+        return rollup(rows.map(function (row) { return row.state; }));
+      }
+
+      function formatWhen(time) {
+        var parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Toronto",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hourCycle: "h12",
+          timeZoneName: "short"
+        }).formatToParts(new Date(time));
+        function get(type) {
+          for (var i = 0; i < parts.length; i++) {
+            if (parts[i].type === type) return parts[i].value;
+          }
+          return "";
+        }
+        var period = get("dayPeriod").replace(/\./g, "").toLowerCase();
+        if (period === "am" || period === "pm") period = period.charAt(0) + ".m.";
+        return get("day") + " " + get("month") + " " + get("year") + ", " + get("hour") + ":" + get("minute") + " " + period + " " + get("timeZoneName");
+      }
+
+      function checkedAt(status) {
+        if (!status || typeof status.checked !== "string") return null;
+        var time = Date.parse(status.checked);
+        return isNaN(time) ? null : time;
+      }
+
+      function positions(rows) {
+        var groups = {};
+        rows.forEach(function (row) {
+          if (!PLACES[row.place]) return;
+          if (!groups[row.place]) groups[row.place] = [];
+          groups[row.place].push(row);
+        });
+        var out = {};
+        Object.keys(groups).forEach(function (place) {
+          var list = groups[place];
+          var gap = 8;
+          var origin = PLACES[place];
+          var start = -((list.length - 1) * gap) / 2;
+          list.forEach(function (row, i) {
+            out[row.index] = { x: origin.x + start + i * gap, y: origin.y };
+          });
+        });
+        return out;
+      }
+
+      function select(index) {
+        current = index;
+        var buttons = markers.querySelectorAll(".marker");
+        for (var i = 0; i < buttons.length; i++) {
+          if (Number(buttons[i].getAttribute("data-index")) === index) {
+            buttons[i].setAttribute("aria-current", "true");
+          } else {
+            buttons[i].removeAttribute("aria-current");
+          }
+        }
+        var cards = nodesEl.querySelectorAll(".node");
+        for (var j = 0; j < cards.length; j++) {
+          cards[j].classList.toggle("is-current", Number(cards[j].getAttribute("data-index")) === index);
+        }
+      }
+
+      function draw(list, status, refreshFailed) {
+        var focusId = document.activeElement ? document.activeElement.id : "";
+        var byId = {};
+        var results = status && Array.isArray(status.results) ? status.results : [];
+        results.forEach(function (item) {
+          if (item && typeof item.id === "string") byId[item.id] = item;
+        });
+        var rows = [];
+        list.forEach(function (node) {
+          if (!node || typeof node.name !== "string" || typeof node.place !== "string" || !Array.isArray(node.checks)) return;
+          var found = (node.id && byId[node.id]) || {};
+          var checksById = {};
+          (Array.isArray(found.checks) ? found.checks : []).forEach(function (check) {
+            if (check && typeof check.id === "string") checksById[check.id] = check;
+          });
+          var checks = [];
+          node.checks.forEach(function (check) {
+            if (!check || typeof check.name !== "string") return;
+            var result = check.id ? checksById[check.id] : null;
+            var state = result ? normalize(result.state) : "unchecked";
+            var detail = result && typeof result.detail === "string" ? result.detail : "Not checked yet.";
+            checks.push({ name: check.name, state: state, detail: detail });
+          });
+          rows.push({
+            index: rows.length,
+            name: node.name,
+            place: node.place,
+            role: typeof node.role === "string" ? node.role : "",
+            summary: typeof node.summary === "string" ? node.summary : "",
+            state: rollup(checks.map(function (check) { return check.state; })),
+            checks: checks,
+            shared: false
+          });
+        });
+        var counts = {};
+        rows.forEach(function (row) {
+          counts[row.place] = (counts[row.place] || 0) + 1;
+        });
+        rows.forEach(function (row) {
+          row.shared = counts[row.place] > 1;
+        });
+
+        if (refreshFailed) showProblem("Could not refresh the status. Showing the last result.");
+        else clearProblem();
+
+        var state = overall(rows);
+        summary.className = "banner " + state;
+        setText(summary, sentence(rows));
+
+        var time = checkedAt(status);
+        var old = time !== null && (Date.now() - time > STALE_MS);
+        stale.hidden = !old;
+        if (old) setText(stale, "The last check is more than 5 minutes old, so these states may be wrong.");
+        when.replaceChildren();
+        if (time === null) {
+          when.appendChild(document.createTextNode("Not checked yet. A checker on the Newmarket node runs every minute."));
+        } else {
+          when.appendChild(document.createTextNode("Last check "));
+          var clock = document.createElement("time");
+          clock.setAttribute("datetime", status.checked);
+          clock.textContent = formatWhen(time);
+          when.appendChild(clock);
+          when.appendChild(document.createTextNode(". Checked every minute."));
+        }
+
+        var spots = positions(rows);
+        markers.replaceChildren();
+        rows.forEach(function (row) {
+          var spot = spots[row.index];
+          if (!spot) return;
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "marker";
+          button.id = "marker-" + row.index;
+          button.setAttribute("data-index", String(row.index));
+          button.style.left = spot.x + "%";
+          button.style.top = spot.y + "%";
+          button.setAttribute("aria-label", row.name + ", " + LABEL[row.state]);
+          var word = document.createElement("span");
+          word.className = "marker-state " + row.state;
+          word.textContent = LABEL[row.state];
+          var dot = document.createElement("span");
+          dot.className = "dot " + row.state;
+          dot.setAttribute("aria-hidden", "true");
+          var place = document.createElement("span");
+          place.className = "marker-place";
+          place.textContent = row.shared ? row.name : row.place;
+          button.appendChild(word);
+          button.appendChild(dot);
+          button.appendChild(place);
+          button.addEventListener("click", function () {
+            select(row.index);
+            var card = document.getElementById("node-" + row.index);
+            if (!card) return;
+            card.scrollIntoView();
+            card.focus();
+          });
+          markers.appendChild(button);
+        });
+
+        var missing = rows.filter(function (row) { return !PLACES[row.place]; });
+        if (missing.length) {
+          undrawn.hidden = false;
+          setText(undrawn, "Not on the map: " + missing.map(function (row) {
+            return row.name + " (" + row.place + ")";
+          }).join(", ") + ". This map draws Newmarket and Toronto.");
+        } else {
+          undrawn.hidden = true;
+          setText(undrawn, "");
+        }
+
+        var hasUnchecked = rows.some(function (row) { return row.state === "unchecked"; });
+        var extra = document.getElementById("legend-unchecked");
+        if (hasUnchecked && !extra) {
+          extra = document.createElement("li");
+          extra.id = "legend-unchecked";
+          var swatch = document.createElement("span");
+          swatch.className = "swatch unchecked";
+          swatch.setAttribute("aria-hidden", "true");
+          extra.appendChild(swatch);
+          extra.appendChild(document.createTextNode("Not checked"));
+          legend.appendChild(extra);
+        } else if (!hasUnchecked && extra) {
+          extra.remove();
+        }
+
+        nodesEl.replaceChildren();
+        rows.forEach(function (row) {
+          var card = document.createElement("article");
+          card.className = "node";
+          card.id = "node-" + row.index;
+          card.tabIndex = -1;
+          card.setAttribute("data-index", String(row.index));
+          card.setAttribute("data-state", row.state);
+          var top = document.createElement("div");
+          top.className = "node-top";
+          var heading = document.createElement("h2");
+          heading.textContent = row.name;
+          var badge = document.createElement("span");
+          badge.className = "state " + row.state;
+          badge.textContent = LABEL[row.state];
+          top.appendChild(heading);
+          top.appendChild(badge);
+          card.appendChild(top);
+          if (row.role) {
+            var role = document.createElement("p");
+            role.className = "role";
+            role.textContent = row.role + " · " + row.place;
+            card.appendChild(role);
+          }
+          if (row.summary) {
+            var blurb = document.createElement("p");
+            blurb.className = "blurb";
+            blurb.textContent = row.summary;
+            card.appendChild(blurb);
+          }
+          var listEl = document.createElement("ul");
+          listEl.className = "checks";
+          row.checks.forEach(function (check) {
+            var item = document.createElement("li");
+            item.className = "check";
+            var name = document.createElement("span");
+            name.textContent = check.name;
+            var mark = document.createElement("span");
+            mark.className = "state " + check.state;
+            mark.textContent = LABEL[check.state];
+            var detail = document.createElement("span");
+            detail.className = "detail";
+            detail.textContent = check.detail;
+            item.appendChild(name);
+            item.appendChild(mark);
+            item.appendChild(detail);
+            listEl.appendChild(item);
+          });
+          card.appendChild(listEl);
+          nodesEl.appendChild(card);
+        });
+        if (current >= rows.length) current = -1;
+        if (current >= 0) select(current);
+        if (focusId) {
+          var again = document.getElementById(focusId);
+          if (again) again.focus();
+        }
+      }
+
+      function readJson(url) {
+        return fetch(url, { cache: "no-store" }).then(function (response) {
+          if (response.status === 404) return { missing: true, data: null };
+          if (!response.ok) throw new Error("bad");
+          return response.json().then(function (data) {
+            return { missing: false, data: data };
+          });
+        });
+      }
+
+      function load() {
+        clearTimeout(timer);
+        var mine = ++ticket;
+        Promise.all([
+          readJson("/status/nodes.json"),
+          readJson("/assets/status.json")
+        ]).then(function (pair) {
+          if (mine !== ticket) return;
+          var nodes = pair[0];
+          var file = pair[1];
+          if (nodes.missing || !nodes.data || !Array.isArray(nodes.data.nodes)) {
+            showProblem("The node list could not be read.");
+            return;
+          }
+          lastNodes = nodes.data.nodes;
+          if (file.missing) {
+            draw(lastNodes, { checked: null, results: [] }, false);
+            return;
+          }
+          if (!file.data || typeof file.data !== "object" || Array.isArray(file.data)) {
+            throw new Error("status");
+          }
+          lastGood = file.data;
+          draw(lastNodes, file.data, false);
+        }).catch(function () {
+          if (mine !== ticket) return;
+          if (lastNodes && lastGood) {
+            draw(lastNodes, lastGood, true);
+            return;
+          }
+          showProblem("The status file could not be read.");
+        }).then(function () {
+          if (mine !== ticket) return;
+          timer = setTimeout(load, 60000);
+        });
+      }
+
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) load();
+      });
+      load();
+    })();
+  </script>
+  <script src="../assets/apps.js"></script>
+</body>
+</html>

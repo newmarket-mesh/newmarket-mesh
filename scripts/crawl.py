@@ -219,6 +219,7 @@ def seeds(hosts):
         if host == HOST:
             found.append(f"https://{host}/directory/")
             found.append(f"https://{host}/search/")
+            found.append(f"https://{host}/status/")
     return found
 
 

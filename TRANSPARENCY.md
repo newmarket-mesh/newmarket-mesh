@@ -18,6 +18,8 @@ The web proxy in front of it, Traefik, logs every request to the server with the
 
 If the login server is down, devices already on the mesh keep reaching each other. New devices cannot join and nothing can change until it is back.
 
+The status checker on the Newmarket node requests `/health` once a minute. That request is in this same log.
+
 ## Traffic between devices
 
 Devices talk to each other directly, encrypted with WireGuard. To connect directly, every device on the mesh learns the public IP address and port of the devices it talks to. That is how a direct connection is made. It is the same in any Tailscale network.
@@ -40,7 +42,11 @@ The hub's page server logs each request with the time, the page, and the browser
 
 The search index is built every minute from public pages on `.nm` sites, including Square posts. It is not published here.
 
-The hub and directory pages load nothing from outside the mesh. No analytics, no fonts, no trackers.
+The status page at https://hub.newmarket.network/status/ shows the Newmarket node and the login server. A checker on the Newmarket node runs every minute. It asks this node's name server for `hub.nm` and `square.nm`, and it opens the hub, the Square, and the search index over HTTPS. It also opens `https://login.newmarket.network/health`. For each check it keeps the time, a state (up, issues, or down), and a short reason such as "Answered." or "Did not answer." It does not keep addresses, and it does not list devices.
+
+The map marks Newmarket and Toronto, the cities already named here. It is a diagram, not a street map. It has no member, no home, and no sensor. The latest result stays on the hub for anyone on the mesh who can open the hub. It is not in this repository. This page is served by the Newmarket node. If that node is shut down, the page is off with it.
+
+The hub, directory, and status pages load nothing from outside the mesh. No analytics, no fonts, no trackers.
 
 On the Square, the operator can read everything posted, the same as any forum admin. There is no mail server, so the Square has no email addresses unless a member types one in. Photos lose their location data when uploaded.
 

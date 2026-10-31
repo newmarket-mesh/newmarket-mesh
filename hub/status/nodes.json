@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "newmarket",
+      "name": "Newmarket node",
+      "place": "Newmarket",
+      "role": "Full node",
+      "summary": "Serves the hub, the Square, and .nm names on this node's LAN. When this node is down, those are offline.",
+      "checks": [
+        {
+          "id": "names",
+          "name": "Names",
+          "kind": "dns",
+          "names": ["hub.nm", "square.nm"]
+        },
+        {
+          "id": "hub",
+          "name": "Hub",
+          "kind": "https",
+          "url": "https://hub.nm/"
+        },
+        {
+          "id": "square",
+          "name": "Square",
+          "kind": "https",
+          "url": "https://square.nm/"
+        },
+        {
+          "id": "index",
+          "name": "Search index",
+          "kind": "https",
+          "url": "https://hub.nm/assets/catalog.json",
+          "expect": "json"
+        }
+      ]
+    },
+    {
+      "id": "login",
+      "name": "Login server",
+      "place": "Toronto",
+      "role": "Login server",
+      "summary": "Decides which devices are on the mesh. Devices already on the mesh keep reaching each other when this is down. New devices cannot join.",
+      "checks": [
+        {
+          "id": "health",
+          "name": "Health",
+          "kind": "https",
+          "url": "https://login.newmarket.network/health"
+        }
+      ]
+    }
+  ]
+}

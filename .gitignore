@@ -9,5 +9,7 @@ deploy/lab/authentik/photo.json
 # Written by the crawler from live pages, including Square posts.
 hub/assets/catalog.json
 portal/directory/catalog.json
+# Written by the status checker. Not a list of members.
+hub/assets/status.json
 __pycache__/
 *.log

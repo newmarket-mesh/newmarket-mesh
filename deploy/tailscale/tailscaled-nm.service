@@ -1,0 +1,12 @@
+[Unit]
+Description=Newmarket Tailscale node
+After=nm-netns.service
+Requires=nm-netns.service
+
+[Service]
+ExecStart=/usr/bin/ip netns exec nm /usr/bin/tailscaled --statedir=/var/lib/tailscale-nm --socket=/run/tailscale-nm.sock --port=41642
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

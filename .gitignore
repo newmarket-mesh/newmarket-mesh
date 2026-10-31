@@ -1,0 +1,13 @@
+.env
+deploy/lab/data/
+deploy/lab/acme/
+deploy/lab/dns/nm.zone
+deploy/headscale/data/
+deploy/headscale/run/
+deploy/lab/authentik/background.jpg
+deploy/lab/authentik/photo.json
+# Written by the crawler from live pages, including Square posts.
+hub/assets/catalog.json
+portal/directory/catalog.json
+__pycache__/
+*.log

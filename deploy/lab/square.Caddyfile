@@ -1,0 +1,30 @@
+{
+	auto_https off
+	admin off
+	servers {
+		# Lemmy rate limits by address. The name gate on this host passes the member's.
+		trusted_proxies static 127.0.0.1/8 172.16.0.0/12 {$LAB_BIND}/32
+	}
+}
+
+http://:8094 {
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		X-Frame-Options DENY
+		-Server
+	}
+	request_body {
+		max_size 25MB
+	}
+
+	@backend `path('/api/*', '/pictrs/*', '/feeds/*', '/nodeinfo/*', '/.well-known/*', '/version', '/sitemap.xml') || header({'Accept': 'application/*'}) || method('POST')`
+	handle @backend {
+		reverse_proxy lemmy:8536
+	}
+
+	handle {
+		reverse_proxy photon:3000
+	}
+}

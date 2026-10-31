@@ -1,0 +1,7 @@
+// Members reach each other and the hub. Exit routes are never auto-approved,
+// so nobody's home internet is carried for someone else.
+{
+  "acls": [
+    { "action": "accept", "src": ["*"], "dst": ["*:*"] },
+  ],
+}

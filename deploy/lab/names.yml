@@ -1,0 +1,71 @@
+# hub.nm. One certificate. Directory stays on the portal port.
+# DNS for .nm is authoritative only. It is not a resolver for the public internet.
+
+name: newmarket-mesh-names
+
+services:
+  gate:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      LAB_BIND: ${LAB_BIND:?set LAB_BIND to this host's LAN address}
+    volumes:
+      - ./hub-name.Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./acme/hub.nm-mesh.daddar.io_ecc:/certs:ro
+      - ./acme/square.nm-mesh.daddar.io_ecc:/certs-square:ro
+      - names-caddy-data:/data
+      - names-caddy-config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  crawl:
+    image: python:3.13.5-alpine
+    restart: unless-stopped
+    # The node resolver is the public internet. hub.nm is answered here.
+    dns:
+      - ${LAB_BIND:?set LAB_BIND to this host's LAN address}
+    environment:
+      CRAWL_INTERVAL: "60"
+      CRAWL_OUTS: /catalog/hub.json,/catalog/portal.json
+      CRAWL_ZONE: /dns/nm.zone
+      SSL_CERT_FILE: /tmp/mesh-ca.pem
+    command:
+      - sh
+      - -c
+      - cat /etc/ssl/certs/ca-certificates.crt /data/caddy/pki/authorities/local/root.crt > /tmp/mesh-ca.pem && exec python -u /opt/crawl.py
+    volumes:
+      - ../../scripts/crawl.py:/opt/crawl.py:ro
+      - ../../hub/assets/catalog.json:/catalog/hub.json
+      - ../../portal/directory/catalog.json:/catalog/portal.json
+      - ./dns/nm.zone:/dns/nm.zone:ro
+      - names-caddy-data:/data:ro
+    depends_on:
+      - gate
+      - dns
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dns:
+    image: coredns/coredns:1.12.3
+    restart: unless-stopped
+    network_mode: host
+    command: ["-conf", "/etc/coredns/Corefile"]
+    volumes:
+      - ./dns/Corefile:/etc/coredns/Corefile:ro
+      - ./dns/nm.zone:/etc/coredns/nm.zone:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  names-caddy-data:
+  names-caddy-config:

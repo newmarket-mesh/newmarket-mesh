@@ -1,0 +1,4 @@
+nm.:53 {
+    file /etc/coredns/nm.zone
+    errors
+}

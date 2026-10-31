@@ -1,0 +1,60 @@
+{
+	admin off
+}
+
+(hub) {
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	@directory path /directory /directory/*
+	handle @directory {
+		reverse_proxy {$LAB_BIND}:8090
+	}
+
+	handle {
+		reverse_proxy {$LAB_BIND}:8092
+	}
+}
+
+# On the mesh. Let's Encrypt cannot reach a mesh address, so the certificate is
+# issued by hand through a TXT record in daddar.io. Renew before it expires.
+https://hub.nm-mesh.daddar.io {
+	tls /certs/fullchain.cer /certs/hub.nm-mesh.daddar.io.key
+	import hub
+}
+
+# On the LAN. Only machines that trust this Caddy's local CA open it cleanly.
+https://hub.nm, https://{$LAB_BIND} {
+	tls internal
+	import hub
+}
+
+# Browsers that fall back to plain http on the mesh land on the trusted name.
+http://hub.nm {
+	redir https://hub.nm-mesh.daddar.io{uri} 308
+}
+
+(square) {
+	encode gzip
+	header -Server
+	reverse_proxy {$LAB_BIND}:8094
+}
+
+# Issued by hand like the hub. Renew before it expires.
+https://square.nm-mesh.daddar.io {
+	tls /certs-square/fullchain.cer /certs-square/square.nm-mesh.daddar.io.key
+	import square
+}
+
+https://square.nm {
+	tls internal
+	import square
+}
+
+http://square.nm {
+	redir https://square.nm-mesh.daddar.io{uri} 308
+}

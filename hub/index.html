@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="mesh-category" content="Search">
+  <meta name="mesh-summary" content="Search pages on this network.">
+  <title>Newmarket Community Mesh</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./assets/custom.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --blue: #024685;
+      --green: #c1cf18;
+      --ink: #16304a;
+      --muted: #3d5166;
+      --paper: #ffffff;
+      --line: #e4eaf0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .band { height: 8px; background: var(--blue); }
+    .band + .band { height: 4px; background: var(--green); }
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem 0;
+    }
+    .place {
+      margin: 0;
+      color: var(--blue);
+      font-size: 1.45rem;
+      font-weight: 720;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-decoration: none;
+    }
+    .place:hover { color: #01366a; }
+    .tools { display: flex; align-items: center; gap: 0.35rem; }
+    .apps-button {
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .apps-button:hover { background: #f4f7fa; color: var(--blue); }
+    .apps-button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+    .apps-menu[hidden] { display: none; }
+    .apps-menu {
+      position: fixed;
+      z-index: 100000;
+      display: grid;
+      grid-template-columns: repeat(2, 6.5rem);
+      gap: 0.25rem;
+      width: max-content;
+      padding: 0.75rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.85rem 0.4rem;
+      border-radius: 6px;
+      color: var(--ink);
+      font-size: 0.78rem;
+      font-weight: 650;
+      line-height: 1.2;
+      text-align: center;
+      text-decoration: none;
+    }
+    .app svg { color: var(--blue); }
+    .app:hover { background: #f4f7fa; }
+    .app:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1.5rem 8vh;
+    }
+    main { width: min(36rem, 100%); }
+    h1 {
+      margin: 0 0 1.35rem;
+      color: var(--blue);
+      font-size: 2.75rem;
+      font-weight: 720;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      text-align: center;
+    }
+    .search {
+      display: block;
+      width: 100%;
+      height: 3rem;
+      padding: 0 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: 1.5rem;
+      background: var(--paper);
+      color: var(--ink);
+      font: inherit;
+      font-size: 1.05rem;
+    }
+    .search:hover { border-color: #c5d0da; }
+    .search:focus {
+      outline: 3px solid var(--green);
+      outline-offset: 2px;
+      border-color: var(--blue);
+    }
+    .go {
+      display: block;
+      margin: 1.15rem auto 0;
+      padding: 0.55rem 1.15rem;
+      border: 0;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .go:hover { background: #01366a; }
+    .go:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+    .hit:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+    #results { margin-top: 1.75rem; }
+    .hit {
+      display: block;
+      padding: 0.85rem 0;
+      border-top: 1px solid var(--line);
+      color: inherit;
+      text-decoration: none;
+    }
+    .hit strong {
+      display: block;
+      color: var(--blue);
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .hit .kind {
+      display: block;
+      margin-top: 0.1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .hit span.body {
+      display: block;
+      margin-top: 0.2rem;
+      color: var(--ink);
+      font-size: 1rem;
+    }
+    .hit:hover strong { color: #01366a; }
+    .none {
+      margin: 1.5rem 0 0;
+      color: var(--muted);
+    }
+    footer {
+      margin-top: auto;
+      padding: 0.85rem 1.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="band"></div>
+  <div class="band"></div>
+  <header class="bar">
+    <a class="place" href="/">Newmarket, Ontario</a>
+    <div class="tools">
+      <button id="apps-button" class="apps-button" type="button" aria-label="Apps" aria-expanded="false" aria-controls="apps-menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="3.5" cy="3.5" r="1.6" fill="currentColor"/>
+          <circle cx="10" cy="3.5" r="1.6" fill="currentColor"/>
+          <circle cx="16.5" cy="3.5" r="1.6" fill="currentColor"/>
+          <circle cx="3.5" cy="10" r="1.6" fill="currentColor"/>
+          <circle cx="10" cy="10" r="1.6" fill="currentColor"/>
+          <circle cx="16.5" cy="10" r="1.6" fill="currentColor"/>
+          <circle cx="3.5" cy="16.5" r="1.6" fill="currentColor"/>
+          <circle cx="10" cy="16.5" r="1.6" fill="currentColor"/>
+          <circle cx="16.5" cy="16.5" r="1.6" fill="currentColor"/>
+        </svg>
+      </button>
+      <div id="apps-menu" class="apps-menu" hidden>
+        <a class="app" id="app-search" href="/">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/></svg>
+          Search
+        </a>
+        <a class="app" id="mesh-directory" href="http://127.0.0.1:8090/directory/">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+          Directory
+        </a>
+        <a class="app" id="app-square" href="http://127.0.0.1:8094/">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
+          Square
+        </a>
+      </div>
+    </div>
+  </header>
+  <div class="stage">
+    <main>
+      <h1>Community Mesh</h1>
+      <form role="search" action="/search/" method="get">
+        <label for="q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search the network</label>
+        <input class="search" id="q" name="q" type="search" placeholder="Search the network" autocomplete="off" enterkeyhint="search" autofocus>
+        <button class="go" type="submit">Search</button>
+      </form>
+    </main>
+  </div>
+  <footer>Lab copy. Nothing here is on the public internet. No analytics.</footer>
+  <script src="./assets/apps.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+# Newmarket Square, the community board. Lemmy 0.19.21 on port 8094.
+# https://github.com/LemmyNet/lemmy/blob/0.19.21/docker/docker-compose.yml
+# The gate is the only listener. The name gate serves square.nm and
+# square.nm-mesh.daddar.io in front of it.
+# Run from the repo root: scripts/lab.sh up -d
+
+x-log: &log
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:16.15-alpine
+    restart: unless-stopped
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: lemmy
+      POSTGRES_USER: lemmy
+      POSTGRES_PASSWORD: ${SQUARE_DB_PASS:?set SQUARE_DB_PASS}
+    volumes:
+      - square-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d lemmy -U lemmy"]
+      interval: 30s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+    logging: *log
+
+  pictrs:
+    image: asonix/pictrs:0.5.25
+    restart: unless-stopped
+    user: "991:991"
+    environment:
+      PICTRS__SERVER__API_KEY: ${SQUARE_PICTRS_KEY:?set SQUARE_PICTRS_KEY}
+      PICTRS__MEDIA__MAX_FILE_SIZE: "20"
+      PICTRS__MEDIA__VIDEO__ENABLE: "false"
+      RUST_LOG: warn
+    volumes:
+      - square-pictrs:/mnt
+    logging: *log
+
+  lemmy:
+    image: dessalines/lemmy:0.19.21
+    restart: unless-stopped
+    environment:
+      RUST_LOG: warn
+    configs:
+      - source: lemmy
+        target: /config/config.hjson
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pictrs:
+        condition: service_started
+    logging: *log
+
+  # Photon in place of lemmy-ui. https://github.com/Xyphyn/photon
+  # The browser calls the API on the mesh name. Pages render on the server,
+  # so square.nm still serves whole pages to the crawler.
+  # Photon puts the instance it renders with into every post link, so the
+  # server renders through the mesh name too, by way of the name gate.
+  photon:
+    image: ghcr.io/xyphyn/photon:v2.4.3
+    restart: unless-stopped
+    environment:
+      PUBLIC_INSTANCE_URL: square.nm-mesh.daddar.io
+      PUBLIC_SSR_ENABLED: "true"
+    extra_hosts:
+      - "square.nm-mesh.daddar.io:${LAB_BIND:?set LAB_BIND to this host's LAN address}"
+    depends_on:
+      - lemmy
+    logging: *log
+
+  gate:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    environment:
+      LAB_BIND: ${LAB_BIND:?set LAB_BIND to this host's LAN address}
+    ports:
+      - "127.0.0.1:8094:8094"
+      - "${LAB_BIND:?set LAB_BIND to this host's LAN address}:8094:8094"
+    volumes:
+      - ./square.Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - lemmy
+      - photon
+    logging: *log
+
+configs:
+  lemmy:
+    # Read once, on the first start: setup creates the admin and names the site.
+    content: |
+      {
+        hostname: "square.nm-mesh.daddar.io"
+        bind: "0.0.0.0"
+        port: 8536
+        tls_enabled: true
+        database: {
+          host: "postgres"
+          user: "lemmy"
+          password: "${SQUARE_DB_PASS:?set SQUARE_DB_PASS}"
+          database: "lemmy"
+        }
+        pictrs: {
+          url: "http://pictrs:8080/"
+          api_key: "${SQUARE_PICTRS_KEY:?set SQUARE_PICTRS_KEY}"
+          image_mode: "ProxyAllImages"
+        }
+        setup: {
+          admin_username: "${SQUARE_ADMIN_USER:-operator}"
+          admin_password: "${SQUARE_ADMIN_PASS:?set SQUARE_ADMIN_PASS}"
+          site_name: "Newmarket Square"
+        }
+      }
+
+volumes:
+  square-db:
+  square-pictrs:

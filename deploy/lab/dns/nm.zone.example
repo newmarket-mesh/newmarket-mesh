@@ -1,0 +1,14 @@
+; Copy to nm.zone and replace 192.0.2.10 with this node's LAN address.
+; Bump the serial after every change.
+$ORIGIN nm.
+$TTL 300
+@       IN SOA  ns.nm. hostmaster.nm. (
+                2026103101
+                7200
+                3600
+                1209600
+                300 )
+        IN NS   ns
+ns      IN A    192.0.2.10
+hub     IN A    192.0.2.10
+square  IN A    192.0.2.10

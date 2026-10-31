@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="mesh-category" content="Network">
+  <meta name="mesh-summary" content="A neighbourhood network for local services, local sensors, and later a way to send a message when the internet is down.">
+  <title>Newmarket Community Mesh</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    :root {
+      color-scheme: light;
+      --blue: #024685;
+      --green: #c1cf18;
+      --ink: #16304a;
+      --muted: #3d5166;
+      --paper: #ffffff;
+      --line: #e4eaf0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.5;
+    }
+    .band { height: 8px; background: var(--blue); }
+    .band + .band { height: 4px; background: var(--green); margin-top: 0; }
+    main {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 2.75rem 1.5rem 4rem;
+    }
+    .place {
+      display: inline-block;
+      margin: 0 0 0.4rem;
+      color: var(--blue);
+      font-size: 0.8rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .place:hover { color: #01366a; }
+    h1 {
+      margin: 0 0 1rem;
+      color: var(--blue);
+      font-size: 2.4rem;
+      font-weight: 720;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+    h2 {
+      margin: 2.25rem 0 0.4rem;
+      color: var(--blue);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    p { font-size: 1.02rem; color: var(--muted); }
+    .lede { color: var(--ink); font-size: 1.12rem; }
+    main a {
+      color: var(--blue);
+      font-weight: 650;
+    }
+    main a:hover { color: #01366a; }
+    main a:focus-visible {
+      outline: 3px solid var(--green);
+      outline-offset: 3px;
+    }
+    footer {
+      margin-top: 2.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="band"></div>
+  <div class="band"></div>
+  <main>
+    <a class="place" id="place" href="http://127.0.0.1:8092/">Newmarket, Ontario</a>
+    <h1>Community Mesh</h1>
+    <p class="lede">A neighbourhood network for local services, local sensors, and later a way to send a message when the internet is down.</p>
+    <p>Everyone keeps their own internet provider. This network does not carry your home connection to anyone else.</p>
+    <p>What is on the network is on the <a href="/directory/">directory</a>.</p>
+    <script>
+      var onHub = location.hostname === "hub.nm" || location.hostname === "hub.nm-mesh.daddar.io";
+      var host = location.protocol + "//" + location.hostname;
+      document.getElementById("place").href = onHub ? "/" : host + ":8092/";
+    </script>
+
+    <footer>
+      Lab copy. Nothing here is on the public internet. No analytics.
+    </footer>
+  </main>
+</body>
+</html>

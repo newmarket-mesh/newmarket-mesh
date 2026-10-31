@@ -1,0 +1,32 @@
+name: nm-headscale
+
+services:
+  headscale:
+    image: docker.io/headscale/headscale:0.29.7
+    container_name: nm-headscale
+    command: serve
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/etc/headscale/config.yaml:ro
+      - ./policy.hujson:/etc/headscale/policy.hujson:ro
+      - ./data:/var/lib/headscale
+      - ./run:/var/run/headscale
+    networks:
+      - proxy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: proxy
+      traefik.http.routers.nm-headscale.rule: Host(`nm-mesh.daddar.io`)
+      traefik.http.routers.nm-headscale.entrypoints: websecure
+      traefik.http.routers.nm-headscale.tls: "true"
+      traefik.http.routers.nm-headscale.tls.certresolver: letsencrypt
+      traefik.http.services.nm-headscale.loadbalancer.server.port: "8080"
+
+networks:
+  proxy:
+    external: true

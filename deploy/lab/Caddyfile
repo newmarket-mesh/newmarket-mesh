@@ -1,0 +1,18 @@
+{
+	auto_https off
+	admin off
+}
+
+http://:{$LAB_HTTP_PORT} {
+	encode gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		X-Frame-Options DENY
+		-Server
+	}
+	handle {
+		root * /srv/portal
+		file_server
+	}
+}

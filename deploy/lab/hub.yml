@@ -1,0 +1,44 @@
+# Homer v26.08.3 on port 8092. Search is open.
+
+services:
+  homer:
+    image: b4bz/homer:v26.08.3
+    restart: unless-stopped
+    container_name: newmarket-mesh-homer
+    environment:
+      INIT_ASSETS: "0"
+      IPV6_DISABLE: "1"
+    volumes:
+      - ../../hub/assets:/www/assets:ro
+      - ../../hub/index.html:/www/index.html:ro
+      - ../../hub/search:/www/search:ro
+    networks:
+      - lab
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  gate:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8092:8092"
+      - "${LAB_BIND:?set LAB_BIND to this host's LAN address}:8092:8092"
+    volumes:
+      - ./hub.Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - lab
+    depends_on:
+      - homer
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  lab:
+    external: true
+    name: newmarket-mesh-lab_default

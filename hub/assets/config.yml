@@ -1,0 +1,38 @@
+---
+title: "Community Mesh"
+subtitle: "Newmarket, Ontario"
+documentTitle: "Newmarket Community Mesh"
+header: true
+footer: "Lab copy. Nothing here is on the public internet. No analytics."
+
+defaults:
+  layout: list
+  colorTheme: light
+
+theme: default
+
+stylesheet:
+  - "assets/custom.css"
+
+colors:
+  light:
+    highlight-primary: "#ffffff"
+    highlight-secondary: "#ffffff"
+    highlight-hover: "#ffffff"
+    background: "#ffffff"
+    card-background: "#ffffff"
+    text: "#16304a"
+    text-header: "#024685"
+    text-title: "#024685"
+    text-subtitle: "#3d5166"
+    card-shadow: "rgba(0, 0, 0, 0)"
+    link: "#024685"
+    link-hover: "#01366a"
+
+message:
+  style: "is-light"
+  content: "A neighbourhood network for local services, local sensors, and later a way to send a message when the internet is down. Everyone keeps their own internet provider. This network does not carry your home connection to anyone else. <span class=\"mesh-directory-line\">What is on the network is on the <a id=\"mesh-directory\" href=\"/directory/\">directory</a>.</span>"
+
+links: []
+
+services: []

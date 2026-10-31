@@ -1,0 +1,24 @@
+# Portal and directory. Caddy is the only listener.
+# Run from the repo root: scripts/lab.sh up -d
+
+name: newmarket-mesh-lab
+
+x-log: &log
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  caddy:
+    image: caddy:2.11.7
+    restart: unless-stopped
+    environment:
+      LAB_HTTP_PORT: ${LAB_HTTP_PORT:-8090}
+    ports:
+      - "127.0.0.1:${LAB_HTTP_PORT:-8090}:${LAB_HTTP_PORT:-8090}"
+      - "${LAB_BIND:?set LAB_BIND to this host's LAN address}:${LAB_HTTP_PORT:-8090}:${LAB_HTTP_PORT:-8090}"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../portal:/srv/portal:ro
+    logging: *log

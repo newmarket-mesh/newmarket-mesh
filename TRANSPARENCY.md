@@ -8,7 +8,7 @@ One operator today. The operator holds admin on the login server, the hub, and N
 
 ## The login server
 
-https://nm-mesh.daddar.io runs [Headscale](https://github.com/juanfont/headscale) on a rented server in Toronto (Linode). That server also hosts the operator's web-hosting business.
+https://login.newmarket.network (first named https://nm-mesh.daddar.io, which still works) runs [Headscale](https://github.com/juanfont/headscale) on a rented server in Toronto (Linode). That server also hosts the operator's web-hosting business.
 
 It decides which devices are on the mesh. For each device it stores the owner's mesh username, the device name, its mesh addresses, its public keys, its operating system and Tailscale version, the public address and port it was last reachable on, and when it was last seen. It does not see what devices send to each other.
 
@@ -32,7 +32,7 @@ Nobody's home internet is carried for someone else. The access policy never appr
 
 ## The hub and Newmarket Square
 
-The hub (https://hub.nm-mesh.daddar.io) and the Square (https://square.nm-mesh.daddar.io) run in a container on a home server in Newmarket. The operator's desktop carries them onto the mesh. That desktop's mesh connection can reach only the hub's web and DNS ports and the public internet. It cannot reach anything else on that home network. See [deploy/tailscale/](deploy/tailscale/).
+The hub (https://hub.newmarket.network) and the Square (https://square.nm-mesh.daddar.io) run in a container on a home server in Newmarket. The operator's desktop carries them onto the mesh. That desktop's mesh connection can reach only the hub's web and DNS ports and the public internet. It cannot reach anything else on that home network. See [deploy/tailscale/](deploy/tailscale/).
 
 When that home server or that desktop is off, the hub and the Square are offline.
 
@@ -46,9 +46,9 @@ On the Square, the operator can read everything posted, the same as any forum ad
 
 ## Names and certificates
 
-`hub.nm-mesh.daddar.io` and `square.nm-mesh.daddar.io` are public DNS records that point at the hub's mesh address. Anyone can look them up. Only devices on the mesh can open them.
+`hub.newmarket.network` and `square.nm-mesh.daddar.io` are public DNS records that point at the hub's mesh address. Anyone can look them up. Only devices on the mesh can open them. The old hub name, `hub.nm-mesh.daddar.io`, redirects to the new one.
 
-Their certificates come from Let's Encrypt. Let's Encrypt cannot reach a mesh address, so ownership is proven with a temporary TXT record in the `daddar.io` zone. That proof is public, as all certificates are, through Certificate Transparency logs.
+Their certificates come from Let's Encrypt. Let's Encrypt cannot reach a mesh address, so ownership is proven with a temporary TXT record in the name's zone. That proof is public, as all certificates are, through Certificate Transparency logs.
 
 ## What is not in this repository
 

@@ -21,7 +21,8 @@ services:
     labels:
       traefik.enable: "true"
       traefik.docker.network: proxy
-      traefik.http.routers.nm-headscale.rule: Host(`nm-mesh.daddar.io`)
+      # nm-mesh.daddar.io stays for devices that joined under the first name.
+      traefik.http.routers.nm-headscale.rule: Host(`login.newmarket.network`) || Host(`nm-mesh.daddar.io`)
       traefik.http.routers.nm-headscale.entrypoints: websecure
       traefik.http.routers.nm-headscale.tls: "true"
       traefik.http.routers.nm-headscale.tls.certresolver: letsencrypt

@@ -21,10 +21,16 @@
 }
 
 # On the mesh. Let's Encrypt cannot reach a mesh address, so the certificate is
-# issued by hand through a TXT record in daddar.io. Renew before it expires.
+# issued by hand through a TXT record in newmarket.network. Renew before it expires.
+https://hub.newmarket.network {
+	tls /certs-hub/fullchain.cer /certs-hub/hub.newmarket.network.key
+	import hub
+}
+
+# The first name. Bookmarks keep working until its certificate lapses.
 https://hub.nm-mesh.daddar.io {
 	tls /certs/fullchain.cer /certs/hub.nm-mesh.daddar.io.key
-	import hub
+	redir https://hub.newmarket.network{uri} 308
 }
 
 # On the LAN. Only machines that trust this Caddy's local CA open it cleanly.
@@ -35,7 +41,7 @@ https://hub.nm, https://{$LAB_BIND} {
 
 # Browsers that fall back to plain http on the mesh land on the trusted name.
 http://hub.nm {
-	redir https://hub.nm-mesh.daddar.io{uri} 308
+	redir https://hub.newmarket.network{uri} 308
 }
 
 (square) {

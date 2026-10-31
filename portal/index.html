@@ -88,7 +88,7 @@
     <p>Everyone keeps their own internet provider. This network does not carry your home connection to anyone else.</p>
     <p>What is on the network is on the <a href="/directory/">directory</a>.</p>
     <script>
-      var onHub = location.hostname === "hub.nm" || location.hostname === "hub.nm-mesh.daddar.io";
+      var onHub = ["hub.nm", "hub.newmarket.network", "hub.nm-mesh.daddar.io"].indexOf(location.hostname) !== -1;
       var host = location.protocol + "//" + location.hostname;
       document.getElementById("place").href = onHub ? "/" : host + ":8092/";
     </script>

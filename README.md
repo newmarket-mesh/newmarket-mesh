@@ -6,13 +6,13 @@ How it runs, what it stores, and who can see what: [TRANSPARENCY.md](TRANSPARENC
 
 ## Pieces
 
-- **Login server**: [Headscale](https://github.com/juanfont/headscale) 0.29.7 at https://nm-mesh.daddar.io. It decides which devices are on the mesh. Config in `deploy/headscale/`.
+- **Login server**: [Headscale](https://github.com/juanfont/headscale) 0.29.7 at https://login.newmarket.network. Devices that joined under the first name, `nm-mesh.daddar.io`, still reach it there. It decides which devices are on the mesh. Config in `deploy/headscale/`.
 - **Relays**: Tailscale's public DERP servers, used only when two devices cannot connect directly. They forward encrypted packets.
-- **Hub**: https://hub.nm-mesh.daddar.io on the mesh. Search across every `.nm` site, plus the directory. [Homer](https://github.com/bastienwirtz/homer) v26.08.3 behind Caddy 2.11.7.
+- **Hub**: https://hub.newmarket.network on the mesh. Search across every `.nm` site, plus the directory. [Homer](https://github.com/bastienwirtz/homer) v26.08.3 behind Caddy 2.11.7.
 - **Newmarket Square**: https://square.nm-mesh.daddar.io on the mesh. The community board. [Lemmy](https://join-lemmy.org/) 0.19.21 with the [Photon](https://github.com/Xyphyn/photon) frontend.
 - **Names**: every device on the mesh is `name.nm`. On a full node's LAN, CoreDNS answers `.nm` for the sites on that node.
 
-`hub.nm-mesh.daddar.io` and `square.nm-mesh.daddar.io` resolve publicly to the hub's mesh address, `100.64.0.1`. Anyone can look the names up. Only devices on the mesh can reach that address.
+`hub.newmarket.network` and `square.nm-mesh.daddar.io` resolve publicly to the hub's mesh address, `100.64.0.1`. Anyone can look the names up. Only devices on the mesh can reach that address.
 
 Versions, checked 31 Oct 2026 (America/Toronto): Headscale `0.29.7`, Homer `v26.08.3`, Caddy `2.11.7`, Lemmy `0.19.21`, Photon `v2.4.3`, pict-rs `0.5.25`, PostgreSQL `16.15`, CoreDNS `1.12.3`.
 
@@ -43,7 +43,7 @@ The pages listen on `127.0.0.1` and `LAB_BIND`:
 
 ### Certificates
 
-Let's Encrypt cannot reach a mesh address, so the mesh names are proven through a TXT record in the `daddar.io` zone, with [acme.sh](https://github.com/acmesh-official/acme.sh) in manual DNS mode. The certificates live in `deploy/lab/acme/`, which is never committed. They are renewed by hand before they expire.
+Let's Encrypt cannot reach a mesh address, so the mesh names are proven through a TXT record in their zone (`newmarket.network` for the hub, `daddar.io` for the Square), with [acme.sh](https://github.com/acmesh-official/acme.sh) in manual DNS mode. The certificates live in `deploy/lab/acme/`, which is never committed. They are renewed by hand before they expire.
 
 ### Newmarket Square
 

@@ -12,6 +12,7 @@ services:
       LAB_BIND: ${LAB_BIND:?set LAB_BIND to this host's LAN address}
     volumes:
       - ./hub-name.Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./acme/hub.newmarket.network_ecc:/certs-hub:ro
       - ./acme/hub.nm-mesh.daddar.io_ecc:/certs:ro
       - ./acme/square.nm-mesh.daddar.io_ecc:/certs-square:ro
       - names-caddy-data:/data

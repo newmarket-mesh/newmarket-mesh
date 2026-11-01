@@ -8,7 +8,7 @@ How it runs, what it stores, and who can see what: [TRANSPARENCY.md](TRANSPARENC
 
 - **Login server**: [Headscale](https://github.com/juanfont/headscale) 0.29.7 at https://login.newmarket.network. Devices that joined under the first name, `nm-mesh.daddar.io`, still reach it there. It decides which devices are on the mesh. Config in `deploy/headscale/`.
 - **Relays**: Tailscale's public DERP servers, used only when two devices cannot connect directly. They forward encrypted packets.
-- **Hub**: https://hub.newmarket.network on the mesh. Search across every `.nm` site, plus the directory. [Homer](https://github.com/bastienwirtz/homer) v26.08.3 behind Caddy 2.11.7.
+- **Hub**: https://hub.newmarket.network on the mesh. Search across every `.nm` site, plus the directory and a status page. [Homer](https://github.com/bastienwirtz/homer) v26.08.3 behind Caddy 2.11.7.
 - **Newmarket Square**: https://square.nm-mesh.daddar.io on the mesh. The community board. [Lemmy](https://join-lemmy.org/) 0.19.21 with the [Photon](https://github.com/Xyphyn/photon) frontend.
 - **Names**: every device on the mesh is `name.nm`. On a full node's LAN, CoreDNS answers `.nm` for the sites on that node.
 
@@ -38,6 +38,7 @@ The pages listen on `127.0.0.1` and `LAB_BIND`:
 - Portal: http://127.0.0.1:8090/
 - Directory: http://127.0.0.1:8090/directory/
 - Hub: http://127.0.0.1:8092/
+- Status: http://127.0.0.1:8092/status/
 - Square: http://127.0.0.1:8094/
 - With names, from the same LAN: https://hub.nm/ and https://square.nm/ (Caddy's local certificate)
 
@@ -58,6 +59,12 @@ That writes the house rules into the sidebar, opens sign-up, turns federation of
 Sign-up is open because the mesh invitation is already the gate. There is no mail server, so there is no email verification and no password reset by mail. The operator resets a password from the admin page.
 
 Lemmy's hostname is fixed at the first start. Changing it later breaks every link and account already made. Photon renders pages on the server through the mesh name, so the Photon container resolves `square.nm-mesh.daddar.io` to `LAB_BIND` and needs the name gate up with a valid certificate. Without it, pages fail with a 500.
+
+## Status
+
+http://127.0.0.1:8092/status/ lists the machines that run the network and whether each check is up, having issues, or down. The map is an OpenStreetMap picture of Newmarket and Toronto, served with the page. It does not mark members, homes, or sensors.
+
+`scripts/status.py` writes `hub/assets/status.json` every minute. That file is not committed. Add a machine in `hub/status/nodes.json`. A place on the map can be Newmarket or Toronto. Do not add a street, a member device, or a sensor.
 
 ## Put the hub on the mesh
 
@@ -80,8 +87,9 @@ Lemmy's hostname is fixed at the first start. Changing it later breaks every lin
 - `deploy/lab/names.yml`: the name gate (Caddy on 80 and 443), the `.nm` DNS server, and the crawler
 - `deploy/lab/square.yml`: Newmarket Square. Lemmy, Photon, pict-rs for pictures, PostgreSQL, and a Caddy gate on 8094. pict-rs strips location data from uploaded photos.
 - `portal/`: the portal and the directory
-- `hub/`: the hub and its search page
+- `hub/`: the hub, its search page, and the status page
 - `scripts/crawl.py`: walks every HTTPS name in the `.nm` zone every minute and rewrites the search index when a page changes. A page joins a directory category with `<meta name="mesh-category" content="Name">`.
+- `scripts/status.py`: checks the Newmarket node and the login server every minute. It does not list member devices.
 - `scripts/square-seed.py`: site settings and starter communities for the Square
 
 ## Stop

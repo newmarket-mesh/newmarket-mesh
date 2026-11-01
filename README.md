@@ -62,7 +62,7 @@ Lemmy's hostname is fixed at the first start. Changing it later breaks every lin
 
 ## Status
 
-http://127.0.0.1:8092/status/ lists the machines that run the network and whether each check is up, having issues, or down. The map marks Newmarket and Toronto. It does not mark members, homes, or sensors.
+http://127.0.0.1:8092/status/ lists the machines that run the network and whether each check is up, having issues, or down. The map is an OpenStreetMap picture of Newmarket and Toronto, served with the page. It does not mark members, homes, or sensors.
 
 `scripts/status.py` writes `hub/assets/status.json` every minute. That file is not committed. Add a machine in `hub/status/nodes.json`. A place on the map can be Newmarket or Toronto. Do not add a street, a member device, or a sensor.
 

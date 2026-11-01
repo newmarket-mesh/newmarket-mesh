@@ -44,7 +44,7 @@ The search index is built every minute from public pages on `.nm` sites, includi
 
 The status page at https://hub.newmarket.network/status/ shows the Newmarket node and the login server. A checker on the Newmarket node runs every minute. It asks this node's name server for `hub.nm` and `square.nm`, and it opens the hub, the Square, and the search index over HTTPS. It also opens `https://login.newmarket.network/health`. For each check it keeps the time, a state (up, issues, or down), and a short reason such as "Answered." or "Did not answer." It does not keep addresses, and it does not list devices.
 
-The map marks Newmarket and Toronto, the cities already named here. It is a diagram, not a street map. It has no member, no home, and no sensor. The latest result stays on the hub for anyone on the mesh who can open the hub. It is not in this repository. This page is served by the Newmarket node. If that node is shut down, the page is off with it.
+The map marks Newmarket and Toronto, the cities already named here. It is an OpenStreetMap picture of that stretch, served from the hub. It has no member, no home, and no sensor. The latest result stays on the hub for anyone on the mesh who can open the hub. It is not in this repository. This page is served by the Newmarket node. If that node is shut down, the page is off with it.
 
 The hub, directory, and status pages load nothing from outside the mesh. No analytics, no fonts, no trackers.
 

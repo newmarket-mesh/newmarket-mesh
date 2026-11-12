@@ -53,6 +53,34 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  status:
+    image: python:3.13.5-alpine
+    restart: unless-stopped
+    # Public DNS for the login server. .nm is queried at STATUS_DNS directly.
+    environment:
+      STATUS_INTERVAL: "60"
+      STATUS_DNS: ${LAB_BIND:?set LAB_BIND to this host's LAN address}
+      STATUS_OUT: /status/status.json
+      STATUS_NODES: /opt/nodes.json
+      SSL_CERT_FILE: /tmp/mesh-ca.pem
+    command:
+      - sh
+      - -c
+      - cat /etc/ssl/certs/ca-certificates.crt /data/caddy/pki/authorities/local/root.crt > /tmp/mesh-ca.pem && exec python -u /opt/status.py
+    volumes:
+      - ../../scripts/status.py:/opt/status.py:ro
+      - ../../hub/status/nodes.json:/opt/nodes.json:ro
+      - ../../hub/assets/status.json:/status/status.json
+      - names-caddy-data:/data:ro
+    depends_on:
+      - gate
+      - dns
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   dns:
     image: coredns/coredns:1.12.3
     restart: unless-stopped

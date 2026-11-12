@@ -165,6 +165,7 @@
       font-size: 0.85rem;
     }
     footer a { color: var(--blue); font-size: 1.02rem; font-weight: 650; }
+    footer a + a { margin-left: 1rem; }
     footer a:hover { color: #01366a; }
     @media (max-width: 680px) {
       .grid { grid-template-columns: 1fr; }
@@ -185,7 +186,7 @@
     <div id="results"></div>
     <p id="none" class="none" hidden></p>
     <footer>
-      <p><a href="/">Portal</a></p>
+      <p><a href="/">Portal</a><a id="status-link" href="http://127.0.0.1:8092/status/">Status</a></p>
       Lab copy. Nothing here is on the public internet. No analytics.
     </footer>
   </main>
@@ -193,6 +194,8 @@
     var onHub = ["hub.nm", "hub.newmarket.network", "hub.nm-mesh.daddar.io"].indexOf(location.hostname) !== -1;
     var host = location.protocol + "//" + location.hostname;
     document.getElementById("place").href = onHub ? "/" : host + ":8092/";
+    var statusLink = document.getElementById("status-link");
+    if (statusLink) statusLink.href = onHub ? "/status/" : host + ":8092/status/";
 
     var heading = document.getElementById("heading");
     var lede = document.getElementById("lede");

@@ -13,6 +13,8 @@ compose() {
 for f in hub/assets/catalog.json portal/directory/catalog.json; do
   [ -f "$root/$f" ] || printf '[]\n' > "$root/$f"
 done
+# The status checker fills this. Docker mounts a missing file as a directory.
+[ -f "$root/hub/assets/status.json" ] || printf '%s\n' '{"checked":null,"results":[]}' > "$root/hub/assets/status.json"
 cmd="${1:-}"
 case "$cmd" in
   up|down|stop|start|restart|ps)

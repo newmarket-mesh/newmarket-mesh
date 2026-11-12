@@ -12,6 +12,8 @@ http://:8092 {
 	}
 	@serp path /search
 	redir @serp /search/ 308
+	@status path /status
+	redir @status /status/ 308
 	handle {
 		reverse_proxy newmarket-mesh-homer:8080
 	}

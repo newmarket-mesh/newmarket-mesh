@@ -12,6 +12,7 @@ services:
       - ../../hub/assets:/www/assets:ro
       - ../../hub/index.html:/www/index.html:ro
       - ../../hub/search:/www/search:ro
+      - ../../hub/status:/www/status:ro
     networks:
       - lab
     logging:
